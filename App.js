@@ -2,72 +2,13 @@ import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Button from './components/Button';
 
+import calculator, {initialState} from './utilities/operations'
+
 export default class App extends React.Component {
+    state = initialState;
 
-    state = {
-        value: 0,
-        operation: '',
-        tempValue: 0,
-    };
-
-    updateValue = (value) => {
-        if (this.state.value === 0) {
-                this.setState({
-                    value: `${value}`
-                })
-        }
-        else{
-            this.setState({
-                value: `${this.state.value}${value}`
-            })
-        }
-    };
-
-    updateOperation = (value) => {
-        this.setState({
-            operation: value,
-            tempValue: this.state.value,
-            value: 0,
-        })
-    };
-
-    result = () => {
-        let result;
-        switch(this.state.operation){
-            case "/":
-                result = parseFloat(this.state.tempValue) / parseFloat(this.state.value);
-                break;
-            case "X":
-                result = parseFloat(this.state.tempValue) * parseFloat(this.state.value);
-                break;
-            case "-":
-                result = parseFloat(this.state.tempValue) - parseFloat(this.state.value);
-                break;
-            case "+":
-                result = parseFloat(this.state.tempValue) + parseFloat(this.state.value);
-                break;
-            default:
-                result = 0;
-                break;
-        }
-
-        this.setState({
-            value: result,
-        })
-    };
-
-    dot = () => {
-        this.setState({
-            value: `${this.state.value}.`
-        })
-    };
-
-    clear = () => {
-        this.setState({
-            value: 0,
-            operation: '',
-            tempValue: 0,
-        })
+    handleTap = (type, value) => {
+        this.setState(state => calculator(type, value, state));
     };
 
     render() {
@@ -78,32 +19,42 @@ export default class App extends React.Component {
                 <Text style={styles.resultText}>{value}</Text>
                 <View style={styles.keyBoard}>
                     <View style={{flexDirection: "row"}}>
-                        <Button firstRow firstCol clear={this.clear}>AC</Button>
-                        <Button firstRow firstCol doubleButton disabled/>
-                        <Button firstRow lastButton updateOperation={this.updateOperation}>/</Button>
+                        <Button gray hidePortrait operation={() => {this.handleTap("operator", "y√x")}}>y√x</Button>
+                        <Button gray hidePortrait operation={() => {this.handleTap("strong")}}>x!</Button>
+                        <Button gray operation={() => {this.handleTap("clear")}}>AC</Button>
+                        <Button gray double disabled/>
+                        <Button orange operation={() => this.handleTap("operator", '/')}>/</Button>
                     </View>
                     <View style={{flexDirection: "row"}}>
-                        <Button updateValue={this.updateValue}>7</Button>
-                        <Button updateValue={this.updateValue}>8</Button>
-                        <Button updateValue={this.updateValue}>9</Button>
-                        <Button lastButton updateOperation={this.updateOperation}>X</Button>
+                        <Button gray hidePortrait operation={() => {this.handleTap("expPow")}}>e×</Button>
+                        <Button gray hidePortrait operation={() => {this.handleTap("10x")}}>10×</Button>
+                        <Button operation={() => this.handleTap("number", 7)}>7</Button>
+                        <Button operation={() => this.handleTap("number", 8)}>8</Button>
+                        <Button operation={() => this.handleTap("number", 9)}>9</Button>
+                        <Button orange operation={() => this.handleTap("operator", 'X')}>x</Button>
                     </View>
                     <View style={{flexDirection: "row"}}>
-                        <Button updateValue={this.updateValue}>4</Button>
-                        <Button updateValue={this.updateValue}>5</Button>
-                        <Button updateValue={this.updateValue}>6</Button>
-                        <Button lastButton updateOperation={this.updateOperation}>-</Button>
+                        <Button gray hidePortrait operation={() => {this.handleTap("ln")}}>ln</Button>
+                        <Button gray hidePortrait operation={() => {this.handleTap("log")}}>log</Button>
+                        <Button operation={() => this.handleTap("number", 4)}>4</Button>
+                        <Button operation={() => this.handleTap("number", 5)}>5</Button>
+                        <Button operation={() => this.handleTap("number", 6)}>6</Button>
+                        <Button orange operation={() => this.handleTap("operator", '-')}>-</Button>
                     </View>
                     <View style={{flexDirection: "row"}}>
-                        <Button updateValue={this.updateValue}>1</Button>
-                        <Button updateValue={this.updateValue}>2</Button>
-                        <Button updateValue={this.updateValue}>3</Button>
-                        <Button lastButton updateOperation={this.updateOperation}>+</Button>
+                        <Button gray hidePortrait operation={() => {this.handleTap("exp")}}>e</Button>
+                        <Button gray hidePortrait operation={() => {this.handleTap("pow2")}}>x²</Button>
+                        <Button operation={() => this.handleTap("number", 1)}>1</Button>
+                        <Button operation={() => this.handleTap("number", 2)}>2</Button>
+                        <Button operation={() => this.handleTap("number", 3)}>3</Button>
+                        <Button orange operation={() => this.handleTap("operator", '+')}>+</Button>
                     </View>
                     <View style={{flexDirection: "row"}}>
-                        <Button doubleButton updateValue={this.updateValue}>0</Button>
-                        <Button dot={this.dot}>,</Button>
-                        <Button lastButton result={this.result}>=</Button>
+                        <Button gray hidePortrait operation={() => {this.handleTap("PI")}}>π</Button>
+                        <Button gray hidePortrait operation={() => {this.handleTap("pow3")}}>x³</Button>
+                        <Button double operation={() => this.handleTap("number", 0)}>0</Button>
+                        <Button operation={() => this.handleTap("dot")}>,</Button>
+                        <Button orange operation={() => this.handleTap("result")}>=</Button>
                     </View>
                 </View>
             </View>
@@ -126,6 +77,7 @@ const styles = StyleSheet.create({
     keyBoard: {
         backgroundColor: "#545557",
         alignItems: 'flex-end',
-        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        justifyContent: 'space-around',
     },
 });

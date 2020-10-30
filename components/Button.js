@@ -1,32 +1,43 @@
 import React from "react";
 import {Dimensions, StyleSheet, Text, TouchableOpacity} from "react-native";
 
-const screen = Dimensions.get("window");
-
 class Button extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            orientation: Dimensions.get('window').width < Dimensions.get('window').height,
+        }
+    }
+
+    onChange = ({window, screen}) => {
+        this.setState({orientation: window.height > window.width});
+    };
+
+    componentDidMount() {
+        Dimensions.addEventListener("change", this.onChange);
+    }
+    componentWillUnmount() {
+        Dimensions.removeEventListener("change", this.onChange);
+    }
 
     render() {
-        const {children, disabled, firstCol, doubleButton, lastButton, updateValue, clear, dot, result, updateOperation} = this.props;
-
+        const {children, disabled, double, orange, gray, hidePortrait, operation} = this.props;
         return (
-            <>
-                <TouchableOpacity
-                    style={[styles.button,
-                        doubleButton ? styles.doubleButton : '',
-                        firstCol ? styles.firstColButton : '',
-                        lastButton ? styles.lastRowButton : '']}
-                    disabled={!!disabled}
-                    onPress={() => {
-                        updateValue ? updateValue(children) : '';
-                        updateOperation ? updateOperation(children) : '';
-                        dot ? dot() : '';
-                        clear ? clear() : '';
-                        result ? result() : '';
-                    }}
-                >
-                    <Text style={styles.buttonText}>{children}</Text>
-                </TouchableOpacity>
-            </>
+            <TouchableOpacity
+                style={[styles.button,
+                    double ? styles.doubleButton : '',
+                    gray ? styles.firstColButton : '',
+                    orange ? styles.lastRowButton : '',
+                    hidePortrait && this.state.orientation ? styles.hidePortrait : '',
+                    !this.state.orientation ? styles.landscape : '',
+                ]}
+                disabled={!!disabled}
+                onPress={() => {
+                    operation && operation()
+                }}
+            >
+                <Text style={styles.buttonText}>{children}</Text>
+            </TouchableOpacity>
         )
     }
 }
@@ -40,9 +51,15 @@ const styles = StyleSheet.create({
         margin: 1,
         height: 100,
     },
+    landscape: {
+        height: 50,
+    },
+    hidePortrait: {
+        display: 'none',
+    },
     doubleButton: {
-        width: screen.width / 2 - 2,
-        flex: 0,
+        flexBasis: 2,
+        flex: 2,
     },
     lastRowButton: {
         backgroundColor: "#f2a33c",
