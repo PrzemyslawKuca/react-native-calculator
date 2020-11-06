@@ -24,6 +24,7 @@ class Button extends React.Component {
         const {children, disabled, double, orange, gray, hidePortrait, operation} = this.props;
         return (
             <TouchableOpacity
+                key={children}
                 style={[styles.button,
                     double ? styles.doubleButton : '',
                     gray ? styles.firstColButton : '',

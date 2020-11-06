@@ -1,11 +1,14 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 import Button from './components/Button';
-
 import calculator, {initialState} from './utilities/operations'
+import {ButtonsArray} from './assets/ButtosArray'
 
 export default class App extends React.Component {
-    state = initialState;
+    constructor() {
+        super();
+        this.state = initialState;
+    }
 
     handleTap = (type, value) => {
         this.setState(state => calculator(type, value, state));
@@ -13,49 +16,24 @@ export default class App extends React.Component {
 
     render() {
         const {value} = this.state;
-
         return (
             <View style={styles.container}>
                 <Text style={styles.resultText}>{value}</Text>
                 <View style={styles.keyBoard}>
-                    <View style={{flexDirection: "row"}}>
-                        <Button gray hidePortrait operation={() => {this.handleTap("operator", "y√x")}}>y√x</Button>
-                        <Button gray hidePortrait operation={() => {this.handleTap("strong")}}>x!</Button>
-                        <Button gray operation={() => {this.handleTap("clear")}}>AC</Button>
-                        <Button gray double disabled/>
-                        <Button orange operation={() => this.handleTap("operator", '/')}>/</Button>
-                    </View>
-                    <View style={{flexDirection: "row"}}>
-                        <Button gray hidePortrait operation={() => {this.handleTap("expPow")}}>e×</Button>
-                        <Button gray hidePortrait operation={() => {this.handleTap("10x")}}>10×</Button>
-                        <Button operation={() => this.handleTap("number", 7)}>7</Button>
-                        <Button operation={() => this.handleTap("number", 8)}>8</Button>
-                        <Button operation={() => this.handleTap("number", 9)}>9</Button>
-                        <Button orange operation={() => this.handleTap("operator", 'X')}>x</Button>
-                    </View>
-                    <View style={{flexDirection: "row"}}>
-                        <Button gray hidePortrait operation={() => {this.handleTap("ln")}}>ln</Button>
-                        <Button gray hidePortrait operation={() => {this.handleTap("log")}}>log</Button>
-                        <Button operation={() => this.handleTap("number", 4)}>4</Button>
-                        <Button operation={() => this.handleTap("number", 5)}>5</Button>
-                        <Button operation={() => this.handleTap("number", 6)}>6</Button>
-                        <Button orange operation={() => this.handleTap("operator", '-')}>-</Button>
-                    </View>
-                    <View style={{flexDirection: "row"}}>
-                        <Button gray hidePortrait operation={() => {this.handleTap("exp")}}>e</Button>
-                        <Button gray hidePortrait operation={() => {this.handleTap("pow2")}}>x²</Button>
-                        <Button operation={() => this.handleTap("number", 1)}>1</Button>
-                        <Button operation={() => this.handleTap("number", 2)}>2</Button>
-                        <Button operation={() => this.handleTap("number", 3)}>3</Button>
-                        <Button orange operation={() => this.handleTap("operator", '+')}>+</Button>
-                    </View>
-                    <View style={{flexDirection: "row"}}>
-                        <Button gray hidePortrait operation={() => {this.handleTap("PI")}}>π</Button>
-                        <Button gray hidePortrait operation={() => {this.handleTap("pow3")}}>x³</Button>
-                        <Button double operation={() => this.handleTap("number", 0)}>0</Button>
-                        <Button operation={() => this.handleTap("dot")}>,</Button>
-                        <Button orange operation={() => this.handleTap("result")}>=</Button>
-                    </View>
+                    {ButtonsArray.map((row, number) => (
+                            <View style={{flexDirection: "row"}} key={number}>
+                                {row.map((item, index) =>
+                                    <Button gray={item.gray} hidePortrait={item.hidePortrait}
+                                            double={item.double} orange={item.orange}
+                                            key={(number.toString() + index.toString())}
+                                            operation={() => {
+                                                this.handleTap(item.operation, item.value)
+                                            }}
+                                    >{item.name}</Button>
+                                )}
+                            </View>
+                        )
+                    )}
                 </View>
             </View>
         );
