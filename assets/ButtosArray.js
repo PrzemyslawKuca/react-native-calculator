@@ -1,8 +1,8 @@
 export const ButtonsArray = [
   [
-    {name: 'y√x', operation: 'operator', value: 'y√x', gray: true, hidePortrait: true},
-    {name: 'x!', operation: 'strong', gray: true, hidePortrait: true},
-    {name: 'AC', operation: 'clear', gray: true},
+    {name: '√x', operation: '√x', gray: true, hidePortrait: true},
+    {name: 'x!', operation: 'factor', gray: true, hidePortrait: true},
+    {name: 'AC', operation: 'clear'},
     {name: '', double: true},
     {name: '/', operation: 'operator', value: '/', orange: true},
   ],
@@ -12,7 +12,7 @@ export const ButtonsArray = [
     {name: '7', operation: 'number', value: 7},
     {name: '8', operation: 'number', value: 8},
     {name: '9', operation: 'number', value: 9},
-    {name: 'X', operation: 'operator', value: 'X', orange: true},
+    {name: 'X', operation: 'operator', value: '*', orange: true},
   ],
   [
     {name: 'ln', operation: 'ln', gray: true, hidePortrait: true},

@@ -1,93 +1,120 @@
+const mexp = require('math-expression-evaluator');
+
+let currentValue = '';
+const operators = ['+', '-', '*', '/'];
 export const initialState = {
     value: 0,
     operation: '',
-    tempValue: 0,
-}
+};
 
 const calculator = (type, value, state) => {
     switch (type) {
-        case "number":
+        case 'number':
             return updateValue(value, state);
-        case "dot":
+        case 'dot':
             return dot(state);
-        case "operator":
-            return {
-                operation: value,
-                tempValue: state.value,
-                value: 0,
-            };
-        case "result":
+        case 'operator':
+            currentValue = '';
+            if (state.value.length > 0) {
+                if ((isNumber(state.value.slice(-1))) || (!operators.includes(state.value.slice(-1)))) {
+                    return {value: `${state.value}` + `${value}`};
+                }
+            }
+            return {value: `${state.value}`};
+        case 'result':
+            currentValue = '';
             return result(state);
-        case "PI":
-            return pi();
-        case "pow3":
-            return pow(state.value, 3);
-        case "exp":
-            return exp();
-        case "pow2":
-            return pow(state.value, 2);
-        case "ln":
-            return ln(state);
-        case "log":
-            return log(state);
-        case "expPow":
-            return expPow(state);
-        case "10x":
-            return pow( 10, state.value);
-        case "strong":
-            return strong(state);
-        case "clear":
+        case 'PI':
+            return constant(state, 'pi');
+        case 'pow3':
+            return pow(state, currentValue, 3);
+        case 'exp':
+            return constant(state, 'e');
+        case 'pow2':
+            return pow(state, currentValue, 2);
+        case 'ln':
+            return operationByTag(state, 'ln');
+        case 'log':
+            return operationByTag(state, 'log');
+        case 'expPow':
+            return pow(state, 'e', currentValue);
+        case '10x':
+            return pow(state, 10, currentValue);
+        case '√x':
+            return operationByTag(state, 'root');
+        case 'factor':
+            return factor(state);
+        case 'clear':
+            currentValue = '';
             return initialState;
         default:
             return state;
     }
 };
 
-export default calculator;
-
 const updateValue = (value, state) => {
-    if (state.value === 0) {return {value: `${value}`}}
+    if (state.value == 0) {
+        currentValue = `${value}`;
+        return {value: `${value}`};
+    }
+
+    currentValue = `${currentValue}` + `${value}`;
     return {value: `${state.value}${value}`};
 };
 
 const result = (state) => {
-    let result;
-    switch (state.operation) {
-        case "/":
-            result = parseFloat(state.tempValue) / parseFloat(state.value);
-            break;
-        case "X":
-            result = parseFloat(state.tempValue) * parseFloat(state.value);
-            break;
-        case "-":
-            result = parseFloat(state.tempValue) - parseFloat(state.value);
-            break;
-        case "+":
-            result = parseFloat(state.tempValue) + parseFloat(state.value);
-            break;
-        case "y√x":
-            result = Math.pow(state.value, 1 / state.tempValue)
-            break;
-        default:
-            result = 0;
-            break;
+    if ((operators.includes(state.value.slice(-1)))) {
+        state.value = state.value.substring(0, state.value.length - 1);
     }
-    return {value: result}
+    return {value: mexp.eval(state.value)};
 };
 
-const strong = (state) => {
-    let result = 1;
-    while (state.value > 0) {
-        result = result * state.value;
-        state.value--;
+const dot = (state) => {
+    if (!isNaN(currentValue) && currentValue.toString().indexOf('.') != -1) {
+        return {value: `${state.value}`};
     }
-    return {value: result}
+
+    currentValue = `${currentValue}.`;
+    return {value: `${state.value}.`};
+};
+
+const operationByTag = (state, tag) => {
+    let localValue = currentValue;
+    if (currentValue.length > 0) {
+        state.value = state.value.substring(0, state.value.length - currentValue.length);
+        currentValue = '';
+        return {value: `${state.value}` + `${tag}(${localValue})`};
+    }
+    return {value: `${state.value}`};
+};
+
+const pow = (state, x, y) => {
+    if (currentValue.length > 0) {
+        state.value = state.value.substring(0, state.value.length - currentValue.length);
+        currentValue = '';
+        return {value: `${state.value}` + `pow(${x},${y})`};
+    }
+    return {value: `${state.value}`};
+};
+
+const constant = (state, name) => {
+    if (state.value == 0) {
+        return {value: `${name}`};
+    }
+    return {value: `${state.value}` + `${name}`};
+};
+
+const factor = (state) => {
+    if (currentValue.slice(-1) === '!') {
+        return {value: `${state.value}`};
+    }
+
+    currentValue = `${currentValue}!`;
+    return {value: `${state.value}!`};
+};
+
+function isNumber(n) {
+    return /^-?[\d.]+(?:e-?\d+)?$/.test(n);
 }
 
-const dot = (state) => {return {value: `${state.value}.`}}
-const pow = (x, y) => {return {value: Math.pow(x, y)}}
-const ln = (state) => {return {value: Math.log(state.value)}}
-const log = (state) => {return {value: Math.log10(state.value)}}
-const expPow = (state) => {return {value: Math.pow(Math.E, state.value)}}
-const exp = () => {return {value: Math.E}}
-const pi = () => {return {value: Math.PI,}}
+export default calculator;
